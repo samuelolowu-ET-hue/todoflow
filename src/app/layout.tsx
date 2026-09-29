@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import '../styles/tailwind.css';
 
 // WHY GEIST?
@@ -42,28 +43,23 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
       <body className={geist.className}>
-        {children}
-        {/* 
-          WHY SONNER TOASTER HERE?
-          The Toaster component renders the toast notification container once,
-          at the root of the app. This means any component anywhere in the tree
-          can call toast() and it will display correctly. Placing it in layout.tsx
-          ensures it's always available without needing to add it to every page.
-        */}
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: 'var(--elevated)',
-              border: '1px solid var(--border)',
-              color: 'var(--foreground)',
-              fontFamily: 'var(--font-sans)',
-            },
-          }}
-        />
-
-        <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Ftodoflow3205back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20" />
-        <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.3" /></body>
+        <ThemeProvider>
+          {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: 'var(--elevated)',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+                fontFamily: 'var(--font-sans)',
+              },
+            }}
+          />
+        </ThemeProvider>
+      
+      <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Ftodoflow3205back.builtwithrocket.new&_be=https%3A%2F%2Fappanalytics.rocket.new&_v=0.1.20" />
+      <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.3" /></body>
     </html>
   );
 }

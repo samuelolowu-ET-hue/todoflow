@@ -68,6 +68,72 @@
 }
 
 /* ============================================================
+   LIGHT MODE TOKENS
+   Applied when <html> has class="light"
+   ============================================================ */
+html.light {
+  --background: #f5f5fa;
+  --foreground: #111118;
+
+  --card: #ffffff;
+  --card-foreground: #111118;
+
+  --elevated: #ffffff;
+
+  --primary: #9333ea;
+  --primary-foreground: #ffffff;
+  --primary-dim: #7c3aed;
+
+  --secondary: #f0f0f8;
+  --secondary-foreground: #4a4a60;
+
+  --accent: #a855f7;
+  --accent-foreground: #ffffff;
+
+  --muted: #ebebf5;
+  --muted-foreground: #7070a0;
+
+  --success: #16a34a;
+  --success-bg: #dcfce7;
+  --warning: #d97706;
+  --warning-bg: #fef3c7;
+  --danger: #dc2626;
+  --danger-bg: #fee2e2;
+  --info: #2563eb;
+  --info-bg: #dbeafe;
+
+  --priority-low: #2563eb;
+  --priority-low-bg: #dbeafe;
+  --priority-medium: #d97706;
+  --priority-medium-bg: #fef3c7;
+  --priority-high: #dc2626;
+  --priority-high-bg: #fee2e2;
+
+  --border: #dddde8;
+  --input: #f0f0f8;
+  --ring: #9333ea;
+}
+
+/* ============================================================
+   SMOOTH THEME TRANSITION
+   ============================================================ */
+html {
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+body,
+.card,
+.elevated,
+header,
+.form-input,
+.btn {
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease;
+}
+
+/* ============================================================
    BASE RESET
    ============================================================ */
 @layer base {

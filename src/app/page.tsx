@@ -20,7 +20,9 @@ import TodoFilters from '@/components/TodoFilters';
 import TodoStatsComponent from '@/components/TodoStats';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import AppLogo from '@/components/ui/AppLogo';
+import ThemeToggle from '@/components/ThemeToggle';
 import { AlertCircle, RefreshCw, Database } from 'lucide-react';
+import Link from 'next/link';
 
 // ─── MOCK DATA ───────────────────────────────────────────────────────────────
 // Shown when Supabase is not yet configured so the UI is not empty during preview.
@@ -319,9 +321,21 @@ export default function TodoManagementPage() {
             </span>
           </div>
           <div className="flex-1" />
+          <nav className="flex items-center gap-1">
+            <span className="px-3 py-1.5 rounded-lg text-sm font-medium text-primary bg-primary/10">
+              Tasks
+            </span>
+            <Link
+              href="/analytics"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors duration-150"
+            >
+              Analytics
+            </Link>
+          </nav>
           <span className="text-xs text-muted-foreground hidden sm:block">
             AI Engineering Cohort · Lagos
           </span>
+          <ThemeToggle />
         </div>
       </header>
 
