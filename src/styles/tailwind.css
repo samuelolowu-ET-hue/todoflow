@@ -1,0 +1,322 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   All hex values live here. Tailwind config references these
+   via var(). Never use hex directly in component className strings.
+   ============================================================ */
+:root {
+  /* Base surfaces */
+  --background: #0a0a0f;
+  --foreground: #e8e8f0;
+
+  /* Card surfaces */
+  --card: #111118;
+  --card-foreground: #e8e8f0;
+
+  /* Elevated surface (modals, dropdowns) */
+  --elevated: #1a1a24;
+
+  /* Primary — purple */
+  --primary: #a855f7;
+  --primary-foreground: #ffffff;
+  --primary-dim: #7c3aed;
+
+  /* Secondary */
+  --secondary: #1f1f2e;
+  --secondary-foreground: #a0a0b8;
+
+  /* Accent */
+  --accent: #c084fc;
+  --accent-foreground: #0a0a0f;
+
+  /* Muted */
+  --muted: #1e1e2a;
+  --muted-foreground: #6b6b80;
+
+  /* Semantic */
+  --success: #22c55e;
+  --success-bg: #052e16;
+  --warning: #f59e0b;
+  --warning-bg: #1c1003;
+  --danger: #ef4444;
+  --danger-bg: #1f0606;
+  --info: #3b82f6;
+  --info-bg: #0a1628;
+
+  /* Priority colors */
+  --priority-low: #3b82f6;
+  --priority-low-bg: #0a1628;
+  --priority-medium: #f59e0b;
+  --priority-medium-bg: #1c1003;
+  --priority-high: #ef4444;
+  --priority-high-bg: #1f0606;
+
+  /* Borders */
+  --border: #2a2a38;
+  --input: #1e1e2a;
+  --ring: #a855f7;
+
+  /* Border radius */
+  --radius: 0.625rem;
+
+  /* Font */
+  --font-sans: 'Geist', 'system-ui', sans-serif;
+  --font-mono: 'Geist Mono', 'monospace';
+}
+
+/* ============================================================
+   BASE RESET
+   ============================================================ */
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+@layer utilities {
+  /* Smooth fade-in for content replacing skeletons */
+  .fade-in {
+    animation: fadeIn 200ms ease-in-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Slide up for toast-like elements */
+  .slide-up {
+    animation: slideUp 200ms ease-out forwards;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Row deletion animation */
+  .todo-exit {
+    animation: todoExit 250ms ease-out forwards;
+  }
+
+  @keyframes todoExit {
+    from { opacity: 1; max-height: 200px; margin-bottom: 0.75rem; }
+    to   { opacity: 0; max-height: 0;     margin-bottom: 0; padding: 0; }
+  }
+
+  /* Highlight flash on value update */
+  .value-flash {
+    animation: valueFlash 600ms ease-out forwards;
+  }
+
+  @keyframes valueFlash {
+    0%   { background-color: color-mix(in srgb, var(--primary) 20%, transparent); }
+    100% { background-color: transparent; }
+  }
+
+  /* Priority badge text */
+  .priority-low    { color: var(--priority-low);    background-color: var(--priority-low-bg);    }
+  .priority-medium { color: var(--priority-medium); background-color: var(--priority-medium-bg); }
+  .priority-high   { color: var(--priority-high);   background-color: var(--priority-high-bg);   }
+
+  /* Focus ring */
+  .focus-ring:focus {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Checkbox custom style */
+  .todo-checkbox {
+    appearance: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: 2px solid var(--border);
+    border-radius: 0.25rem;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 150ms ease;
+  }
+
+  .todo-checkbox:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .todo-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  .todo-checkbox:hover:not(:checked) {
+    border-color: var(--primary);
+  }
+
+  /* Textarea and input base */
+  .form-input {
+    background-color: var(--input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    padding: 0.625rem 0.875rem;
+    width: 100%;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent);
+  }
+
+  .form-input::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  .form-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Card surface */
+  .card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  /* Elevated surface */
+  .elevated {
+    background-color: var(--elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Button base */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 150ms ease;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font-sans);
+    white-space: nowrap;
+  }
+
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--accent);
+  }
+
+  .btn-secondary {
+    background-color: var(--secondary);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--muted);
+    border-color: var(--muted-foreground);
+  }
+
+  .btn-danger {
+    background-color: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background-color: var(--danger);
+    color: white;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted-foreground);
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--muted);
+    color: var(--foreground);
+  }
+
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .btn-icon {
+    padding: 0.375rem;
+    border-radius: 0.5rem;
+  }
+}
