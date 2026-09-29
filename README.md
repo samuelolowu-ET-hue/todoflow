@@ -8,12 +8,12 @@ A full-stack task management application built for productivity. Create, organis
 
 ## ✨ Features
 
-### Task Management
-- **Create tasks** with a title and optional notes
-- **Edit tasks** inline — title, notes, and priority
-- **Delete tasks** with a confirmation prompt (no accidental deletes)
-- **Complete / uncomplete tasks** with a single click
-- **Persistent storage** — all data lives in Supabase/PostgreSQL and survives page refreshes
+1. Install dependencies: 
+  ```bash
+  npm install
+  # or
+  yarn install
+  ```
 
 ### Notes
 - Each task can carry a freeform note
