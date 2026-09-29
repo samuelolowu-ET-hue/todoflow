@@ -1,239 +1,619 @@
 # AGENTS.md
 
-## Project Overview
+## 1. Purpose
 
-TodoFlow is a full-stack to-do list application built as part of an AI Engineering cohort assignment in Lagos, Nigeria.
+This file defines how an AI coding agent must operate when working on this repository.
 
-The application allows users to:
+The agent is responsible for making safe, maintainable, tested changes while preserving the existing functionality of the application.
 
-- Create tasks with a title, notes, and priority
-- Edit tasks (title, notes, priority)
-- Delete tasks (with confirmation)
-- Mark tasks as completed or incomplete
-- Add and edit notes on any task
-- Filter tasks by status (All, Active, Completed) and by priority (Low, Medium, High)
-- Persist all data in a PostgreSQL database via Supabase
+This is an educational project. The owner is an early-stage AI Engineering learner and should be able to understand and explain the implementation.
 
-The primary goal is to demonstrate the ability to use an AI coding agent to build, test, debug, and deploy a functional web application.
+Prefer clarity and maintainability over cleverness or unnecessary abstraction.
 
 ---
 
-## User Skill Level
+## 2. Project Context
 
-The project owner is an early-stage AI Engineering learner participating in a cohort in Lagos, Nigeria.
-
-When making changes:
-
-- Explain important technical decisions clearly.
-- Prefer simple, maintainable solutions over unnecessary complexity.
-- Do not introduce libraries or architectural patterns without a clear reason.
-- When changing existing functionality, explain what changed and why.
-- Assume the project owner may need to explain the implementation during a technical review.
-
----
-
-## Technology Stack
-
-| Layer       | Technology                        |
-|-------------|-----------------------------------|
-| Framework   | Next.js 15 (App Router)           |
-| Language    | TypeScript                        |
-| UI Library  | React 19                          |
-| Styling     | Tailwind CSS v3                   |
-| Database    | Supabase (PostgreSQL)             |
-| Hosting     | Vercel or Netlify                 |
-| Version Control | GitHub                        |
-| Notifications | Sonner (toast notifications)    |
-
----
-
-## Project Structure
-
-/
-├── AGENTS.md                    ← This file
-├── README.md                    ← Setup and usage instructions
-├── public/
-│   └── assets/images/           ← Static images
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx           ← Root layout, font, metadata
-│   │   ├── page.tsx             ← Main todo management screen
-│   │   └── api/
-│   │       └── todos/
-│   │           ├── route.ts     ← GET all todos, POST new todo
-│   │           └── [id]/
-│   │               └── route.ts ← PATCH update, DELETE todo
-│   ├── components/
-│   │   ├── TodoForm.tsx         ← Create new task form
-│   │   ├── TodoList.tsx         ← Renders list of todos
-│   │   ├── TodoItem.tsx         ← Individual task card with inline edit
-│   │   ├── TodoFilters.tsx      ← Filter tabs
-│   │   ├── TodoStats.tsx        ← Header stat counters
-│   │   └── DeleteConfirmModal.tsx ← Confirmation dialog for deletion
-│   ├── lib/
-│   │   └── supabase.ts          ← Supabase client initialization
-│   ├── types/
-│   │   └── todo.ts              ← TypeScript type definitions
-│   └── styles/
-│       └── tailwind.css         ← Tailwind directives + CSS variables
-
----
-
-## Database Schema
-
-Run the following SQL in your Supabase SQL Editor to create the required table:
-
-create table todos (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  notes text,
-  completed boolean not null default false,
-  priority text not null default 'medium' check (priority in ('low', 'medium', 'high')),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-### Why UUID instead of integer IDs?
-
-UUIDs (Universally Unique Identifiers) are safer than sequential integers because they cannot be guessed or iterated. This matters even for personal apps because it prevents accidental exposure of your data structure.
-
----
-
-## Environment Variables
-
-Create a `.env.local` file at the root of the project:
-
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-**Important security notes:**
-- Never commit `.env.local` to version control.
-- The `NEXT_PUBLIC_` prefix makes these variables available in the browser.
-- The **anon key** is safe for client-side use because Supabase Row Level Security (RLS) controls access.
-- Never use the **service role key** in client-side code — it bypasses all security.
-
----
-
-## Coding Standards
-
-- Use TypeScript with explicit types for all important data structures.
-- Use functional React components with hooks.
-- Keep components small and focused on a single responsibility.
-- Use descriptive variable and function names.
-- Avoid duplicated logic — extract shared helpers to `/lib`.
-- Keep business logic (API calls, data transforms) separate from presentation components where practical.
-- Do not add dependencies unless they provide clear value.
-- Remove unused imports, variables, and dead code.
-- Do not leave `console.log` statements in production code.
-
----
-
-## Functional Requirements
+This repository contains a full-stack to-do application.
 
 The application must support:
 
-1. Creating a todo (title required, notes optional, priority required).
-2. Editing a todo (title, notes, and priority can be changed).
-3. Deleting a todo (with a confirmation dialog).
-4. Marking a todo complete or incomplete (toggle).
-5. Adding and editing notes (notes are first-class data, not placeholder text).
-6. Assigning a priority: `low`, `medium`, or `high`.
-7. Filtering todos by: All, Active, Completed, Low, Medium, High.
-8. Persisting all data in Supabase/PostgreSQL.
-9. Showing loading states while data is being fetched or mutated.
-10. Showing an empty state when no todos match the current filter.
-11. Displaying user-friendly error messages when operations fail.
+* Creating tasks
+* Editing tasks
+* Deleting tasks
+* Completing and uncompleting tasks
+* Adding notes to tasks
+* Editing notes
+* Assigning task priority
+* Filtering tasks
+* Persistent storage
+* Production deployment
+
+### Required Notes Feature
+
+Notes are a core product requirement.
+
+Notes must:
+
+* Belong to a specific task.
+* Be persisted in the database.
+* Be editable.
+* Remain available after page refresh.
+* Never be implemented as static or mock data.
+
+### Additional Feature
+
+Task priority is an additional required feature.
+
+Supported priorities:
+
+* `low`
+* `medium`
+* `high`
 
 ---
 
-## Notes Feature
+## 3. Technology Constraints
 
-Notes are a core feature, not an afterthought.
+Use the existing project stack unless there is a compelling reason to change it.
 
-Every todo has a `notes` field stored in the database.
+Preferred stack:
 
-Users can:
-- Add notes when creating a task.
-- View notes on each task card (collapsed by default, expandable).
-- Edit notes when editing a task.
-- Save notes — they persist after page refresh.
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* Supabase/PostgreSQL
+* GitHub
+* Vercel or Netlify
 
-Notes must never be displayed as static placeholder text. They are real persisted application data.
+### Dependency Rule
 
----
+Do not add a dependency unless:
 
-## Error Handling
+1. The functionality cannot reasonably be implemented with the existing stack.
+2. The dependency provides meaningful value.
+3. Its addition does not introduce unnecessary complexity.
 
-- Never silently ignore errors from database or API operations.
-- Log diagnostic information to the console during development only.
-- Display a user-friendly error message in the UI.
-- Never expose stack traces, SQL errors, or Supabase internals to the user.
-- Errors should be localized — a failed delete should not crash the entire list.
-
----
-
-## Security
-
-- Use environment variables for all credentials.
-- Never expose the Supabase service-role key in client-side code.
-- Never commit `.env.local` or any file containing real credentials.
-- Validate user input on the server side in API routes.
-- Do not trust client-provided IDs without validation.
+Before installing a package, inspect the existing dependencies and determine whether an existing solution is sufficient.
 
 ---
 
-## Testing Checklist
+## 4. Agent Operating Principles
 
-Before declaring a feature complete, verify:
+The agent MUST:
 
-- [ ] Create a new task with title only
-- [ ] Create a new task with title, notes, and priority
-- [ ] Edit a task title
-- [ ] Edit task notes
-- [ ] Change task priority
-- [ ] Mark a task as completed
-- [ ] Mark a completed task as incomplete
-- [ ] Delete a task (confirm the dialog appears)
-- [ ] Filter by All, Active, Completed, Low, Medium, High
-- [ ] Refresh the page and confirm all data persists
-- [ ] Test on a mobile-sized screen (375px width)
-- [ ] Verify error messages appear when the database is unavailable
-- [ ] Run `npm run build` and confirm it succeeds with no errors
+* Inspect the repository before making changes.
+* Understand existing code before modifying it.
+* Prefer small, incremental changes.
+* Preserve working functionality.
+* Avoid unnecessary rewrites.
+* Reuse existing components and utilities where appropriate.
+* Keep business logic understandable.
+* Validate changes before declaring them complete.
+* Clearly report assumptions and unresolved issues.
 
----
+The agent MUST NOT:
 
-## Deployment Requirements
-
-1. Push the project to a GitHub repository.
-2. Connect the repository to Vercel or Netlify.
-3. Add the environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) in the hosting platform's dashboard.
-4. Deploy and wait for the build to complete.
-5. Open the public URL in a browser and test all core flows.
-6. Do not claim deployment is successful until the public URL has been manually tested.
+* Claim a feature works without testing it.
+* Invent APIs, environment variables, files, or database structures.
+* Replace working architecture without justification.
+* Introduce unnecessary frameworks or libraries.
+* Commit secrets.
+* Disable linting or type checking merely to make the build pass.
+* Delete tests simply because they fail.
+* Hide errors from the user.
 
 ---
 
-## Maintenance
+# 5. Standard Workflow
 
-When making changes to this project:
+For every non-trivial task, follow this workflow.
 
-1. Read and understand the existing implementation before changing anything.
-2. Make the smallest reasonable change to achieve the goal.
-3. Do not rewrite working functionality unnecessarily.
-4. Update this file and the README if setup or usage changes.
-5. Run `npm run build` after changes to confirm no TypeScript or build errors.
+## Step 1 — Inspect
+
+Before editing:
+
+* Inspect the repository structure.
+* Identify the relevant files.
+* Read the existing implementation.
+* Check package scripts.
+* Check existing tests.
+* Check relevant database/schema code.
+* Check environment-variable requirements.
+
+Do not modify files before understanding the relevant implementation.
 
 ---
 
-## Agent Behaviour
+## Step 2 — Plan
 
-When an AI coding agent works on this project:
+For changes involving multiple files or meaningful architecture:
 
-- Ask for clarification when requirements are genuinely ambiguous.
-- Otherwise make reasonable, documented assumptions.
-- Explain significant technical decisions.
-- Prefer maintainability over cleverness.
-- Avoid unnecessary complexity.
-- Never claim a feature works without testing it.
-- Do not add libraries without explaining why they are necessary.
-- Do not rewrite working code without a clear reason.
+1. Identify the desired outcome.
+2. Identify affected files.
+3. Identify potential regressions.
+4. Choose the smallest reasonable implementation.
+
+For simple changes, a full written plan is unnecessary.
+
+If requirements are ambiguous and the ambiguity materially affects the implementation, ask for clarification.
+
+Otherwise make the simplest reasonable assumption and state it.
+
+---
+
+## Step 3 — Implement
+
+Implement the smallest change that satisfies the requirement.
+
+Follow existing project conventions.
+
+Prefer:
+
+* Small components
+* Explicit types
+* Clear function names
+* Reusable logic
+* Predictable data flow
+* Simple state management
+
+Avoid premature abstraction.
+
+Do not create generic utilities until there is a real need for reuse.
+
+---
+
+## Step 4 — Validate
+
+After implementation:
+
+1. Run the relevant tests.
+2. Run linting.
+3. Run TypeScript/type checking if configured.
+4. Run the production build when appropriate.
+5. Manually verify important user flows.
+
+Fix failures caused by the change before declaring the task complete.
+
+Do not ignore warnings or errors without explaining why they are safe to leave unresolved.
+
+---
+
+## 6. Code Standards
+
+### TypeScript
+
+Use TypeScript throughout the application.
+
+Avoid:
+
+```ts
+any
+```
+
+unless there is a documented and justified reason.
+
+Prefer explicit types for:
+
+* Database records
+* Component props
+* API responses
+* Function parameters
+* Important application state
+
+Keep types close to the code they describe unless they are shared across multiple modules.
+
+---
+
+### React
+
+Use functional components.
+
+Keep components focused on a single responsibility.
+
+Avoid unnecessarily large components.
+
+Separate:
+
+* UI rendering
+* Data access
+* Business logic
+
+when doing so improves maintainability.
+
+Do not introduce state-management libraries unless the application's complexity genuinely requires one.
+
+---
+
+### Naming
+
+Use descriptive names.
+
+Prefer:
+
+```text
+TodoItem
+TodoForm
+TodoFilters
+updateTodo
+deleteTodo
+```
+
+over ambiguous names such as:
+
+```text
+Item
+Form
+handleData
+processThing
+```
+
+---
+
+### Comments
+
+Do not add comments that merely restate the code.
+
+Use comments when explaining:
+
+* Non-obvious business logic
+* Important architectural decisions
+* Workarounds
+* External constraints
+* Security considerations
+
+---
+
+# 7. Data and Database Rules
+
+The application uses persistent database storage.
+
+A task should contain at least:
+
+```text
+id
+title
+notes
+completed
+priority
+created_at
+updated_at
+```
+
+Priority values must be constrained to:
+
+```text
+low
+medium
+high
+```
+
+Database operations must handle failures explicitly.
+
+Do not assume database operations succeeded merely because no exception was thrown.
+
+When modifying the schema:
+
+1. Inspect the existing schema first.
+2. Make the smallest required change.
+3. Preserve existing data where possible.
+4. Update application types and queries accordingly.
+5. Verify the application still works after the migration.
+
+---
+
+# 8. Error Handling
+
+Errors must be handled at the appropriate layer.
+
+For user-facing failures:
+
+* Show a clear, useful message.
+* Preserve the rest of the application where possible.
+* Do not expose stack traces or internal implementation details.
+
+For development diagnostics:
+
+* Use appropriate logging.
+* Include enough context to identify the failure.
+* Never log secrets or sensitive credentials.
+
+Never silently swallow an error.
+
+Bad:
+
+```ts
+try {
+  await saveTodo();
+} catch {}
+```
+
+Better:
+
+```ts
+try {
+  await saveTodo();
+} catch (error) {
+  console.error("Failed to save todo", error);
+  setError("Unable to save the task. Please try again.");
+}
+```
+
+---
+
+# 9. Security Rules
+
+Never commit secrets.
+
+Never expose:
+
+* Database passwords
+* API keys
+* Service-role keys
+* Private tokens
+* Authentication secrets
+
+Use environment variables.
+
+Client-side code must only receive credentials explicitly designed to be public.
+
+Never bypass security controls merely to make development easier.
+
+Validate user-controlled input before using it in database operations or other sensitive contexts.
+
+---
+
+# 10. UI and UX Rules
+
+The application should be:
+
+* Responsive
+* Accessible
+* Keyboard usable where practical
+* Visually consistent
+* Simple to understand
+
+Important asynchronous operations should provide feedback.
+
+Examples:
+
+* Loading state
+* Disabled submit button
+* Error state
+* Empty state
+* Success feedback where appropriate
+
+Destructive operations such as deletion should require an appropriate confirmation or undo mechanism.
+
+Do not sacrifice usability merely to make the implementation shorter.
+
+---
+
+# 11. Testing Requirements
+
+At minimum, verify these flows:
+
+### Task Management
+
+* Create task
+* Edit task
+* Delete task
+* Complete task
+* Uncomplete task
+
+### Notes
+
+* Create task with notes
+* View notes
+* Edit notes
+* Save notes
+* Refresh page
+* Confirm notes persist
+
+### Priority
+
+* Set low priority
+* Set medium priority
+* Set high priority
+* Change priority
+
+### Filtering
+
+Verify:
+
+* All tasks
+* Active tasks
+* Completed tasks
+* Priority filtering
+
+### Reliability
+
+Also verify:
+
+* Empty task list
+* Failed database operation
+* Slow/loading state
+* Mobile layout
+* Production build
+
+---
+
+# 12. Git Practices
+
+Make changes that are easy to review.
+
+Prefer focused commits when the agent is asked to commit.
+
+Commit messages should describe the change.
+
+Examples:
+
+```text
+feat: add task notes
+feat: add task priority filtering
+fix: handle failed todo updates
+test: add todo persistence tests
+```
+
+Do not create commits containing unrelated changes.
+
+Never rewrite or destroy Git history unless explicitly instructed.
+
+---
+
+# 13. Deployment
+
+The application must be deployable to a public URL.
+
+Before deployment:
+
+* Confirm the production build succeeds.
+* Confirm required environment variables are configured.
+* Confirm the database is accessible.
+* Confirm the application works without development-only assumptions.
+
+After deployment:
+
+1. Open the public URL.
+2. Create a task.
+3. Add notes.
+4. Change priority.
+5. Complete the task.
+6. Refresh the page.
+7. Confirm persisted data remains available.
+8. Test the primary user flows again.
+
+Do not report deployment as successful until the deployed application has been verified.
+
+---
+
+# 14. Environment Variables
+
+Environment variables must be documented without exposing secret values.
+
+If required variables are missing:
+
+* Identify which variables are required.
+* Explain where they are used.
+* Do not invent credentials.
+* Do not commit `.env` files containing secrets.
+
+A safe example file may be maintained:
+
+```text
+.env.example
+```
+
+Example values must be placeholders only.
+
+---
+
+# 15. Handling Existing Bugs
+
+If a task exposes an unrelated existing bug:
+
+1. Determine whether it blocks the requested work.
+2. Do not silently rewrite unrelated code.
+3. Fix it if the fix is small and clearly safe.
+4. Otherwise report it separately.
+
+Do not expand the scope of a task unnecessarily.
+
+---
+
+# 16. Handling Ambiguous Requests
+
+When requirements are unclear:
+
+### Ask for clarification when:
+
+* Two interpretations would produce materially different behaviour.
+* A decision affects the database schema.
+* A decision affects security.
+* A destructive action is requested but its scope is unclear.
+
+### Make a reasonable assumption when:
+
+* The ambiguity is minor.
+* The implementation is easily reversible.
+* Existing project conventions provide a clear answer.
+
+When making an assumption, state it briefly.
+
+---
+
+# 17. Documentation
+
+Keep documentation synchronized with the actual implementation.
+
+Update documentation when changes affect:
+
+* Setup
+* Environment variables
+* Database schema
+* Development commands
+* Deployment
+* Major architecture
+
+Do not create documentation for functionality that does not exist.
+
+---
+
+# 18. Definition of Done
+
+A task is complete only when:
+
+* The requested functionality exists.
+* Existing functionality still works.
+* Type checking passes where configured.
+* Linting passes where configured.
+* Relevant tests pass.
+* The production build succeeds when applicable.
+* Error handling is implemented.
+* No secrets were introduced.
+* Documentation is updated when necessary.
+* The implementation has been manually verified when appropriate.
+
+For deployment tasks, the public URL must also be tested.
+
+Never use "done" to mean "the code was generated."
+
+"Done" means the implementation was **verified**.
+
+---
+
+# 19. Final Response Format
+
+After completing a task, report:
+
+### Changed
+
+Briefly describe what was implemented.
+
+### Files
+
+List the important files changed.
+
+### Validation
+
+Report the checks actually performed.
+
+Example:
+
+```text
+✓ TypeScript
+✓ ESLint
+✓ Production build
+✓ Todo creation
+✓ Notes persistence
+✓ Priority filtering
+```
+
+Do not claim checks were performed if they were not.
+
+### Known Issues
+
+List any remaining problems, limitations, or assumptions.
+
+Keep the final report concise and factual.
